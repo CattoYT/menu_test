@@ -1,13 +1,8 @@
 use bevy::prelude::*;
 
-mod ui_helper;
+use crate::GameState;
 
-#[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum GameState {
-    Settings,
-    MainMenu,
-    InGame,
-}
+mod ui_helper;
 
 #[derive(Component, Debug, Clone)]
 enum ButtonAction {
@@ -35,11 +30,7 @@ impl Plugin for MainMenu {
 fn init_main_menu(mut commands: Commands, assets: Res<AssetServer>) {
     println!("Main menu stated");
     commands.spawn(Camera3d::default());
-    commands.spawn((
-        ui_helper::spawn_main_menu(&assets),
-        MainMenuComponent,
-    ));
-
+    commands.spawn((ui_helper::spawn_main_menu(&assets), MainMenuComponent));
 }
 
 fn button_fucker(
@@ -47,7 +38,7 @@ fn button_fucker(
     query: Query<(&Interaction, &ButtonAction), (Changed<Interaction>, With<Button>)>,
 ) {
     for (interaction, action) in query {
-        println!("{:?}", *interaction);
+        // println!("{:?}", *interaction);
 
         match *interaction {
             Interaction::Pressed => {
