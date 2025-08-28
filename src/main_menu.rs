@@ -29,7 +29,7 @@ impl Plugin for MainMenu {
 
 fn init_main_menu(mut commands: Commands, assets: Res<AssetServer>) {
     println!("Main menu stated");
-    commands.spawn(Camera3d::default());
+    commands.spawn((Camera3d::default(), MainMenuComponent));
     commands.spawn((ui_helper::spawn_main_menu(&assets), MainMenuComponent));
 }
 
