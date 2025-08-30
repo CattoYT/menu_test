@@ -5,6 +5,7 @@ use bevy::{
     prelude::*,
     time::common_conditions::on_timer,
 };
+use rand::Rng;
 
 use crate::GameState;
 
@@ -18,18 +19,15 @@ impl Plugin for Game {
         app.add_systems(
             Update,
             (
-                test,
                 clear_offscreen_note,
+                move_note_down,
                 spawn_note.run_if(on_timer(Duration::from_secs(1))),
             )
+                //universal things
                 .in_set(GameplaySet)
                 .run_if(in_state(GameState::InGame)),
         );
     }
-}
-
-fn test() {
-    println!("Game loopin");
 }
 
 #[derive(Component, Debug, Clone)]
@@ -52,16 +50,24 @@ fn spawn_note(
         base_color: Color::srgb(30., 60., 99.),
         ..Default::default()
     });
+    let temp_lane = rand::rng().random_range(0..=4);
     commands.spawn((
-        Ball { lane: 0 },
+        Ball { lane: temp_lane },
         Transform::from_translation(Vec3 {
-            x: -30.,
+            x: -40. + temp_lane as f32 * 8.,
             y: 5.,
             z: -50.,
         }),
         Mesh3d(ball_mesh.clone()),
         MeshMaterial3d(ball_material.clone()),
     ));
+    println!("Spawned ball in lane: {}", temp_lane);
+}
+
+fn move_note_down(query: Query<(&mut Transform), With<Ball>>) {
+    for mut ball in query {
+        ball.translation.y -= 0.3;
+    }
 }
 
 fn clear_offscreen_note(

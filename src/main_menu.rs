@@ -33,17 +33,17 @@ fn init_main_menu(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((ui_helper::spawn_main_menu(&assets), MainMenuComponent));
 }
 
+
+// on press stuff
 fn button_fucker(
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<(&Interaction, &ButtonAction), (Changed<Interaction>, With<Button>)>,
 ) {
     for (interaction, action) in query {
-        // println!("{:?}", *interaction);
 
         match *interaction {
             Interaction::Pressed => {
-                println!("Migrated state");
-                next_state.set(GameState::InGame);
+                
                 button_manager(&mut next_state, action);
             }
             Interaction::Hovered => {}
@@ -52,6 +52,8 @@ fn button_fucker(
     }
 }
 
+
+// button thing does what the button wants to button
 fn button_manager(next_state: &mut ResMut<NextState<GameState>>, button_type: &ButtonAction) {
     match *button_type {
         ButtonAction::Start => {
@@ -60,10 +62,7 @@ fn button_manager(next_state: &mut ResMut<NextState<GameState>>, button_type: &B
         ButtonAction::Settings => next_state.set(GameState::Settings),
         ButtonAction::Quit => std::process::exit(0),
     }
-}
-
-fn spawn_settings() {
-    todo!();
+    info!("Migrated state");
 }
 
 fn despawn_menu(mut commands: Commands, query: Query<Entity, With<MainMenuComponent>>) {
