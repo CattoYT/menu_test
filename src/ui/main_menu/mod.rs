@@ -1,12 +1,43 @@
 use bevy::prelude::*;
 
-use crate::main_menu::ButtonAction;
+use crate::ui::{BASE_BUTTON_COLOUR, BUTTON_ROUNDING};
+use crate::GameState;
+use crate::ui::helpers::buttons::{self, ButtonAction};
 
-const BUTTON_ROUNDING: f32 = 18.;
 
-const BASE_BUTTON_COLOUR: Color = Color::srgb_u8(200, 138, 246);
 
-pub fn spawn_main_menu(asset_server: &AssetServer) -> impl Bundle {
+
+#[derive(Component)]
+pub(super) struct MainMenuComponent;
+
+pub struct MainMenu;
+
+impl Plugin for MainMenu {
+    fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(GameState::MainMenu), init_main_menu);
+        app.add_systems(
+            Update,
+            (buttons::button_fucker).run_if(in_state(GameState::MainMenu)),
+        );
+        app.add_systems(OnExit(GameState::MainMenu), despawn_menu);
+    }
+}
+
+fn init_main_menu(mut commands: Commands, assets: Res<AssetServer>) {
+    println!("Main menu stated");
+    commands.spawn((Camera3d::default(), MainMenuComponent));
+    commands.spawn((spawn_main_menu(&assets), MainMenuComponent));
+}
+
+ fn despawn_menu(mut commands: Commands, query: Query<Entity, With<MainMenuComponent>>) {
+    for menu_component in query {
+        commands.entity(menu_component).despawn();
+    }
+}
+
+fn spawn_main_menu(asset_server: &AssetServer) -> impl Bundle {
+
+    // THIS IS LEGACY I DONT WANT TO TOUCH IT LMAO
     (
         Node {
             width: Val::Percent(100.),
@@ -84,7 +115,7 @@ pub fn spawn_main_menu(asset_server: &AssetServer) -> impl Bundle {
                     Val::Px(BUTTON_ROUNDING),
                 ),
                 Button,
-                ButtonAction::Settings,
+                ButtonAction::OpenSettings,
                 BackgroundColor(BASE_BUTTON_COLOUR),
                 children![(
                     Text::new("Settings"),

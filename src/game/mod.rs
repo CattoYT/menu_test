@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use bevy::{
-    ecs::{query, system::command},
     prelude::*,
     time::common_conditions::on_timer,
 };
@@ -16,16 +15,19 @@ pub struct Game;
 impl Plugin for Game {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), init_game_scene);
+
         app.add_systems(
-            Update,
+            FixedUpdate,
             (
-                clear_offscreen_note,
-                move_note_down,
                 spawn_note.run_if(on_timer(Duration::from_secs(1))),
-            )
-                //universal things
-                .in_set(GameplaySet)
-                .run_if(in_state(GameState::InGame)),
+                (
+                    clear_offscreen_note, 
+                    move_note_down
+                )
+                    //universal things
+
+            ).in_set(GameplaySet)
+            .run_if(in_state(GameState::InGame)),
         );
     }
 }
@@ -33,6 +35,13 @@ impl Plugin for Game {
 #[derive(Component, Debug, Clone)]
 struct Ball {
     lane: i8,
+    timestamp: f32,
+}
+
+impl Default for Ball {
+    fn default() -> Ball {
+        Ball { lane: 0, timestamp: 0.0 }
+    }
 }
 
 fn init_game_scene(mut commands: Commands) {
@@ -52,10 +61,10 @@ fn spawn_note(
     });
     let temp_lane = rand::rng().random_range(0..=4);
     commands.spawn((
-        Ball { lane: temp_lane },
+        Ball { lane: temp_lane, ..default() },
         Transform::from_translation(Vec3 {
-            x: -40. + temp_lane as f32 * 8.,
-            y: 5.,
+            x: 30.,
+            y: -1. + temp_lane as f32 * 6.,
             z: -50.,
         }),
         Mesh3d(ball_mesh.clone()),
@@ -64,9 +73,9 @@ fn spawn_note(
     println!("Spawned ball in lane: {}", temp_lane);
 }
 
-fn move_note_down(query: Query<(&mut Transform), With<Ball>>) {
+fn move_note_down(query: Query<&mut Transform, With<Ball>>) {
     for mut ball in query {
-        ball.translation.y -= 0.3;
+        ball.translation.x -= 0.3;
     }
 }
 
@@ -77,6 +86,7 @@ fn clear_offscreen_note(
     for (note, visible) in query {
         if !**visible {
             commands.entity(note).despawn();
+            info!("Note despawned");
         }
     }
 }
