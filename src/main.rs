@@ -1,6 +1,8 @@
 use bevy::{prelude::*, window::PresentMode};
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
 
+use crate::ui::helpers::ui_renderer::UIPosition;
+
 mod game;
 mod settings;
 mod ui;
@@ -42,4 +44,5 @@ fn main() -> AppExit {
         .insert_resource(config)
         .insert_resource(ClearColor(Color::srgb_u8(26, 22, 30)))
         .run()
+
 }

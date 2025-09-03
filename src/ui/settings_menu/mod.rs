@@ -1,13 +1,11 @@
-use bevy::{prelude::*, window::PresentMode};
+use bevy::{ecs::query, prelude::*, window::PresentMode};
 
 use crate::{
-    GameState,
-    ui::helpers::buttons::ButtonAction,
-    ui::helpers::ui_renderer::{UIPosition, draw_simple_rounded_button},
+    ui::helpers::{buttons::{self, ButtonAction}, ui_renderer::{draw_simple_rounded_button, UIPosition}}, GameState
 };
 
 pub struct SettingsMenu;
-
+#[derive(Component)]
 struct SettingsMenuComponent;
 
 //current goal is to make it really ez for new settings so basically just a settings library fuck my life
@@ -23,11 +21,15 @@ impl Plugin for SettingsMenu {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Settings), load_settings_menu);
         app.add_systems(OnExit(GameState::Settings), despawn_settings_menu);
-    }
+        app.add_systems(
+            Update,
+            (buttons::button_fucker).run_if(in_state(GameState::Settings)),
+        );
+        }
 }
 
 fn load_settings_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((Camera3d::default()));
+    commands.spawn((Camera3d::default(), SettingsMenuComponent));
     commands.spawn((
         Node {
             width: Val::Percent(100.),
@@ -62,7 +64,7 @@ fn load_settings_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 "Vsync".to_string(),
                 ButtonAction::ModifySetting
             ),
-            draw_simple_rounded_button(
+            (draw_simple_rounded_button(
                 &asset_server,
                 UIPosition {
                     top: 60.,
@@ -73,8 +75,13 @@ fn load_settings_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
                 "Back".to_string(),
                 ButtonAction::OpenMainMenu, //buttons dont button
             ),
-        ],
-    ));
+        )
+        ]
+    , SettingsMenuComponent));
 }
 
-fn despawn_settings_menu() {}
+fn despawn_settings_menu(mut commands: Commands, query: Query<Entity, With<SettingsMenuComponent>>) {
+    for entity in query{
+        commands.entity(entity).despawn();
+    }
+}

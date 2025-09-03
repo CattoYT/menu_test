@@ -3,7 +3,7 @@ use crate::{settings::Settings, GameState};
 use bevy::prelude::*;
 
 #[derive(Component, Debug, Clone)]
-pub(in crate::ui) enum ButtonAction {
+pub enum ButtonAction {
     Start,
     OpenSettings,
     ModifySetting, // TODO: MAKE THIS WORK
@@ -12,12 +12,12 @@ pub(in crate::ui) enum ButtonAction {
 }
 
 // on press stuff
-pub(in crate::ui) fn button_fucker(
+pub fn button_fucker(
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<(&Interaction, &ButtonAction), (Changed<Interaction>, With<Button>)>,
 ) {
     for (interaction, action) in query {
-
+        println!("a");
         match *interaction {
             Interaction::Pressed => {
                 println!("a");

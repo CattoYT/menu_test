@@ -1,4 +1,5 @@
-use bevy::prelude::*;
+
+use bevy::{ecs::spawn::SpawnRelatedBundle, prelude::*};
 
 use crate::ui::{BASE_BUTTON_COLOUR, BUTTON_ROUNDING, helpers::buttons::ButtonAction};
 
@@ -14,8 +15,8 @@ pub fn draw_simple_rounded_button(
     position: UIPosition,
     text: String,
     action: ButtonAction,
-) -> impl Bundle {
-    (
+) -> impl Bundle{
+    return (
         Node {
             top: Val::Percent(position.top), //only jesus knows where these values came from (my ass)
             left: Val::Percent(position.left),
